@@ -1,9 +1,37 @@
+import { useState, useEffect } from "react";
+import { Container } from "./styles";
+import api from '../../api'
 
 export default function Repositorio({match}){
 
+    const [repositorio, setRepositorio] = useState({});
+    const [issues, setIusses] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(()=> {
+        async  function load(){
+            const nomeRepo = decodeURIComponent(match.params.repositorio);
+
+           const [repositorioData, issuesData] =  await Promise.all([
+                api.get(`/repos/${nomeRepo}`),
+                api.get(`/repos/${nomeRepo}/issues` , 
+                {
+                    params:{
+                        state:'open',
+                        per_page : 5
+                    }
+                })
+            ]);
+            setRepositorio(repositorioData.data);
+            setIusses(issuesData.data);
+            setLoading(false);
+        }
+        load();
+    }, [match.params.repositorio]);
+
     return (
-        <h1 style={{color:'#fff'}}>
-        {decodeURIComponent(match.params.repositorio) }
-        </h1>
+        <Container>
+
+        </Container>
     )
 }
